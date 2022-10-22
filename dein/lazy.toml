@@ -1,0 +1,118 @@
+# lualineのカスタマイズ
+lua_add = '''
+require('lualine').setup({
+  options = {
+    icons_enabled = true,
+    theme = 'auto',
+    component_separators = { left = '', right = '' },
+    section_separators = { left = '', right = '' },
+    disabled_filetypes = {
+      statusline = {},
+      winbar = {},
+    },
+    ignore_focus = {},
+    always_divide_middle = true,
+    globalstatus = false,
+    refresh = {
+      statusline = 1000,
+      tabline = 1000,
+      winbar = 1000,
+    }
+  },
+  sections = {
+    lualine_a = {'mode'},
+    lualine_b = {'branch', 'diff', 'diagnostics'},
+    lualine_c = {
+      {
+        'filename',
+        symbols = {
+            readonly = '[r]',
+        },
+      },
+    },
+    lualine_x = {'encoding',
+    {
+    'fileformat',
+     symbols = {
+        unix = '', -- 
+        dos = '',  -- e70f
+        mac = '',  -- e711
+     }
+    },'filetype'},
+    lualine_y = {'progress'},
+    lualine_z = {'location'}
+  },
+  inactive_sections = {
+    lualine_a = {},
+    lualine_b = {},
+    lualine_c = {'filename'},
+    lualine_x = {'location'},
+    lualine_y = {},
+    lualine_z = {}
+  },
+  tabline = {},
+  winbar = {},
+  inactive_winbar = {},
+  extensions = {}
+})
+'''
+# フォントコピー用
+# 
+
+
+# スクロールバーと検索ハイライト
+# 全角表示でバグる 便利だったのでかなしい
+#[[plugins]]
+#repo = 'petertriho/nvim-scrollbar'
+#lua_add = '''
+#require("scrollbar").setup()
+#require("scrollbar.handlers.search").setup()
+#'''
+
+
+
+## <leader>ffでファジー検索
+## 使い勝手よくない なんかうまくうごかない......
+#[[plugins]]
+#repo = 'nvim-telescope/telescope.nvim'
+#depends = ['nvim-lua/plenary.nvim']
+#rev = '0.1.0'
+#hook_add = '''
+#nnoremap <leader>ff <cmd>Telescope find_files<cr>
+#nnoremap <leader>fg <cmd>Telescope live_grep<cr>
+#nnoremap <leader>fb <cmd>Telescope buffers<cr>
+#nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+#'''
+#
+#[[plugins]]
+#repo = 'nvim-telescope/telescope-frecency.nvim'
+#depends = ['nvim-telescope/telescope.nvim', 'tami5/sqlite.lua']
+#rev = '0.1.0'
+#lua_add = '''
+#require('telescope').load_extension('frecency')
+#'''
+#hook_add = '''
+#nnoremap <leader>fl <cmd>Telescope frecency<cr>
+#'''
+#
+#[[plugins]]
+#repo = 'nvim-telescope/telescope-fzf-native.nvim'
+##build = 'make'
+##うまく動かなかったので手動でmakeして手動でファイルコピーした かなしい
+##dein/repos/~/fzf-native/lua → dein/.cache/init.vim/lua
+##lua直下にlib _ext内にfzf .dein直下(luaと同じ階層)にlib.soをbuildファイルごと
+#depends = ['nvim-telescope/telescope.nvim']
+#lua_add = '''
+#require('telescope').setup {
+#  extensions = {
+#    fzf = {
+#      fuzzy = true,
+#      override_generic_sorter = true,
+#      override_file_sorter = true,
+#      case_mode = "smart_case",
+#    }
+#  }
+#}
+#require('telescope').load_extension('fzf')
+#'''
+

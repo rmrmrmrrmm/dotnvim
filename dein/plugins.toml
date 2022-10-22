@@ -1,0 +1,348 @@
+# dein
+[[plugins]]
+repo = 'Shougo/dein.vim'
+
+# 前提ライブラリ
+[[plugins]]
+repo = 'nvim-lua/plenary.nvim'
+[[plugins]]
+repo = 'tami5/sqlite.lua'
+[[plugins]]
+repo = 'kyazdani42/nvim-web-devicons'
+#[[plugins]]
+#repo = 'nvim-tree/nvim-web-devicons'
+
+# lspサーバーの設定
+[[plugins]]
+repo = 'neovim/nvim-lspconfig'
+depends = ['SmiteshP/nvim-navic']
+lua_add = '''
+-- Mappings.
+-- 邪魔なのでOmni(C-x C-o)だけ有効化
+
+local on_attach = function(client, bufnr)
+  -- Enable completion triggered by <c-x><c-o>
+  vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
+
+  -- navic
+  if client.server_capabilities.documentSymbolProvider then
+        require("nvim-navic").attach(client, bufnr)
+  end
+end
+
+local lsp_flags = {
+  -- This is the default in Nvim 0.7+
+  debounce_text_changes = 150,
+}
+require('lspconfig')['pyright'].setup{
+    on_attach = on_attach,
+    flags = lsp_flags,
+}
+'''
+
+# lsp補完プラグイン群
+[[plugins]]
+repo = 'hrsh7th/cmp-nvim-lsp'
+[[plugins]]
+repo = 'hrsh7th/cmp-buffer'
+[[plugins]]
+repo = 'hrsh7th/cmp-path'
+[[plugins]]
+repo = 'hrsh7th/cmp-cmdline'
+[[plugins]]
+repo = 'hrsh7th/cmp-vsnip'
+[[plugins]]
+repo = 'hrsh7th/vim-vsnip'
+
+[[plugins]]
+repo = 'hrsh7th/nvim-cmp'
+depends = ['neovim/nvim-lspconfig', 'hrsh7th/cmp-nvim-lsp', 'hrsh7th/cmp-buffer', 'hrsh7th/cmp-path', 'hrsh7th/cmp-cmdline', 'hrsh7th/cmp-vsnip', 'hrsh7th/vim-vsnip']
+hook_add = '''
+set completeopt=menu,menuone,noselect
+
+lua <<EOF
+  -- Set up nvim-cmp.
+  local cmp = require'cmp'
+
+  cmp.setup({
+    snippet = {
+      -- REQUIRED - you must specify a snippet engine
+      expand = function(args)
+        vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
+        -- require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
+        -- require('snippy').expand_snippet(args.body) -- For `snippy` users.
+        -- vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
+      end,
+    },
+    window = {
+      -- completion = cmp.config.window.bordered(),
+      -- documentation = cmp.config.window.bordered(),
+    },
+    mapping = cmp.mapping.preset.insert({
+      ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+      ['<C-f>'] = cmp.mapping.scroll_docs(4),
+      ['<C-Space>'] = cmp.mapping.complete(),
+      ['<C-e>'] = cmp.mapping.abort(),
+      ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+    }),
+    sources = cmp.config.sources({
+      { name = 'nvim_lsp' },
+      { name = 'vsnip' }, -- For vsnip users.
+      -- { name = 'luasnip' }, -- For luasnip users.
+      -- { name = 'ultisnips' }, -- For ultisnips users.
+      -- { name = 'snippy' }, -- For snippy users.
+    }, {
+      { name = 'buffer' },
+    })
+  })
+
+  -- Set configuration for specific filetype.
+  cmp.setup.filetype('gitcommit', {
+    sources = cmp.config.sources({
+      { name = 'cmp_git' }, -- You can specify the `cmp_git` source if you were installed it.
+    }, {
+      { name = 'buffer' },
+    })
+  })
+
+  -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
+  cmp.setup.cmdline({ '/', '?' }, {
+    mapping = cmp.mapping.preset.cmdline(),
+    sources = {
+      { name = 'buffer' }
+    }
+  })
+
+  -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
+  cmp.setup.cmdline(':', {
+    mapping = cmp.mapping.preset.cmdline(),
+    sources = cmp.config.sources({
+      { name = 'path' }
+    }, {
+      { name = 'cmdline' }
+    })
+  })
+
+  -- Set up lspconfig.
+  local capabilities = require('cmp_nvim_lsp').default_capabilities()
+  -- Replace <YOUR_LSP_SERVER> with each lsp server you've enabled.
+  require('lspconfig')['pyright'].setup {
+    capabilities = capabilities
+  }
+EOF
+'''
+
+# lspサーバーを使うstatusline用コンポーネント
+[[plugins]]
+repo = 'SmiteshP/nvim-navic'
+lua_add = '''
+require("nvim-navic").setup{
+    icons = {
+        File          = " ",
+        Module        = " ",
+        Namespace     = " ",
+        Package       = " ",
+        Class         = " ",
+        Method        = " ",
+        Property      = " ",
+        Field         = " ",
+        Constructor   = " ",
+        Enum          = "練",
+        Interface     = "練",
+        Function      = " ",
+        Variable      = " ",
+        Constant      = " ",
+        String        = " ",
+        Number        = " ",
+        Boolean       = "◩ ",
+        Array         = " ",
+        Object        = " ",
+        Key           = " ",
+        Null          = "ﳠ ",
+        EnumMember    = " ",
+        Struct        = " ",
+        Event         = " ",
+        Operator      = " ",
+        TypeParameter = " ",
+    },
+    highlight = false,
+    separator = " > ",
+    depth_limit = 0,
+    depth_limit_indicator = "..",
+}
+'''
+
+# カラースキーム
+[[plugins]]
+repo = 'mhartington/oceanic-next'
+hook_add = 'colorscheme OceanicNext'
+
+# s[][]で検索
+[[plugins]]
+repo = 'justinmk/vim-sneak'
+
+# 構文解析
+[[plugins]]
+repo = 'nvim-treesitter/nvim-treesitter'
+depends = ['mhartington/oceanic-next', 'yioneko/nvim-yati', 'p00f/nvim-ts-rainbow', 'haringsrob/nvim_context_vt', 'nvim-treesitter/playground']
+lua_add = '''
+require'nvim-treesitter.configs'.setup {
+  highlight = {
+    enable = true,
+  },
+  indent = {
+    enable = true,
+  },
+  ensure_installed = 'all',
+  rainbow = {
+    enable = true,
+    -- disable = { "jsx", "cpp" }, list of languages you want to disable the plugin for
+    extended_mode = true, -- Also highlight non-bracket delimiters like html tags, boolean or table: lang -> boolean
+    max_file_lines = nil, -- Do not enable for files with more than n lines, int
+    -- colors = {}, -- table of hex strings
+    -- termcolors = {} -- table of colour name strings
+  },
+  yati = { enable = true },
+  playground = {
+    enable = true,
+    disable = {},
+    updatetime = 25, -- Debounced time for highlighting nodes in the playground from source code
+    persist_queries = false, -- Whether the query persists across vim sessions
+    keybindings = {
+      toggle_query_editor = 'o',
+      toggle_hl_groups = 'i',
+      toggle_injected_languages = 't',
+      toggle_anonymous_nodes = 'a',
+      toggle_language_display = 'I',
+      focus_language = 'f',
+      unfocus_language = 'F',
+      update = 'R',
+      goto_node = '<cr>',
+      show_help = '?',
+    },
+  },
+}
+'''
+
+[[plugins]]
+repo = 'nvim-treesitter/playground'
+
+
+# treesitter用インデントの設定
+[[plugins]]
+repo = 'yioneko/nvim-yati'
+
+# 対応する括弧を色付け
+[[plugins]]
+repo = 'p00f/nvim-ts-rainbow'
+
+# 関数の後に現在のコンテキストを表示
+[[plugins]]
+repo = 'haringsrob/nvim_context_vt'
+
+## 引数を色付け
+#[[plugins]]
+#repo = 'm-demare/hlargs.nvim'
+#lua_add = '''
+#require('hlargs').setup()
+#'''
+
+
+# ステータスライン
+[[plugins]]
+repo = 'nvim-lualine/lualine.nvim'
+
+# バッファーライン
+[[plugins]]
+repo = 'akinsho/bufferline.nvim'
+depends = ['kyazdani42/nvim-web-devicons']
+rev = 'v2.*'
+lua_add = '''
+require("bufferline").setup{}
+'''
+
+# ウィンドウライン
+[[plugins]]
+repo = 'B4mbus/nvim-headband'
+depends = ['SmiteshP/nvim-navic']
+lua_add = '''
+local symbols = require('nvim-headband.symbols')
+-- All default symbols are exported to the user and can be accessed via require('nvim-headband.symbols')
+
+local strict_combine = require('nvim-headband.filters').strict_combine
+local bt_filter = require('nvim-headband.filters').bt_filter
+local ft_filter = require('nvim-headband.filters').ft_filter
+
+local default_config = {
+  enable = true, -- whether to enable the winbar
+
+  enable_if_single_window = true, -- should the winbar be visible even if there's only one window open?
+
+  window_filter = strict_combine( -- filters out certain windows
+    bt_filter {
+      'NvimTree',
+      'nerdtree',
+      'neo-tree',
+      'packer',
+      'alpha',
+      'dashboard',
+      'startify',
+      'nofile',
+      'nvim-tree'
+    },
+    ft_filter {
+      'gitcommit',
+      'NeogitCommitMessage',
+      'NeogitStatus',
+    }
+  ),
+
+  file_section = { -- the configuration for the file section
+    text = 'filename', -- how the file section should be displayed, can be 'full'|'full_lower'|'filename'|'shortened| 'shortened_lower'
+  },
+}
+
+require('nvim-headband').setup {default_config}
+'''
+
+# モードによって色変わるやつ
+[[plugins]]
+repo = 'mvllow/modes.nvim'
+rev = 'v0.2.0'
+lua_add = '''
+require("modes").setup()
+'''
+
+# 検索ハイライトがリッチになる
+[[plugins]]
+repo = 'kevinhwang91/nvim-hlslens'
+lua_add = '''
+local kopts = {noremap = true, silent = true}
+
+vim.api.nvim_set_keymap('n', 'n',
+    [[<Cmd>execute('normal! ' . v:count1 . 'n')<CR><Cmd>lua require('hlslens').start()<CR>]],
+    kopts)
+vim.api.nvim_set_keymap('n', 'N',
+    [[<Cmd>execute('normal! ' . v:count1 . 'N')<CR><Cmd>lua require('hlslens').start()<CR>]],
+    kopts)
+vim.api.nvim_set_keymap('n', '*', [[*<Cmd>lua require('hlslens').start()<CR>]], kopts)
+vim.api.nvim_set_keymap('n', '#', [[#<Cmd>lua require('hlslens').start()<CR>]], kopts)
+vim.api.nvim_set_keymap('n', 'g*', [[g*<Cmd>lua require('hlslens').start()<CR>]], kopts)
+vim.api.nvim_set_keymap('n', 'g#', [[g#<Cmd>lua require('hlslens').start()<CR>]], kopts)
+
+vim.api.nvim_set_keymap('n', '<Leader>l', ':noh<CR>', kopts)
+'''
+
+# ファイラー
+[[plugins]]
+repo = 'nvim-tree/nvim-tree.lua'
+depends = ['kyazdani42/nvim-web-devicons']
+hook_add = '''
+lua << EOF
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+require("nvim-tree").setup()
+EOF
+nnoremap <C-f> :NvimTreeToggle<CR>
+'''
+

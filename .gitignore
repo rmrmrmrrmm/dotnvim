@@ -1,0 +1,5 @@
+.netrwhist
+/dein/*
+!/dein/plugins.toml
+!/dein/lazy.toml
+

@@ -1,0 +1,2 @@
+# dotnvim
+my nvim config

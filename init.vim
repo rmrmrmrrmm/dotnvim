@@ -1,3 +1,6 @@
+" wsl用
+" linux上で使えない項目多数
+
 " leaderをスペースに設定
 let mapleader = "\<Space>"
 
@@ -55,6 +58,7 @@ set showmatch
 set matchtime=1
 " 文字を可視化
 set list listchars=trail:_
+set list listchars=tab:\\t
 " 全角文字のサイズを修正
 set ambiwidth=double
 " 検索系
@@ -85,6 +89,11 @@ set wrap
 set expandtab
 set tabstop=2
 set shiftwidth=2
+"ポップアップウィンドウ透過
+set pumblend=30
+
+"ライトテーマ
+"set background=light
 
 " jjでエスケープ
 inoremap jj <Esc>
@@ -97,35 +106,36 @@ nnoremap gk k
 
 
 " ウィンドウ操作関連
-nnoremap <leader>s :split
-nnoremap <leader>v :vsplit
+nnoremap <leader>s :split<CR>
+nnoremap <leader>v :vsplit<CR>
 nnoremap <leader>h <C-w>h
 nnoremap <leader>j <C-w>j
 nnoremap <leader>k <C-w>k
 nnoremap <leader>l <C-w>l
-
-" <leader> o | O で改行
-nnoremap <leader>o o<Esc>
-nnoremap <leader>O O<Esc>
+nnoremap <leader>w <C-w>
+nnoremap <leader>> <C-w>>
+nnoremap <leader>< <C-w><
+nnoremap <leader>+ <C-w>+
+nnoremap <leader>- <C-w>-
 
 " Yで行末までヤンク
 nnoremap Y y$
 
 " バッファ移動
-nnoremap <C-k> :bprev<CR>
-nnoremap <C-j> :bnext<CR>
+"nnoremap <C-k> :bprev<CR>
+"nnoremap <C-j> :bnext<CR>
 
 " ハイライト消す
 nnoremap <leader><ESC> :nohl<CR>
 
-" 右クリックで選択範囲をクリップボードに出力
+" Ctrl-Cで選択範囲をクリップボードに出力
 vnoremap <C-c> :w !clip.exe<CR><ESC>
 
 " Ctrl-Nでバッファ新規作成
-nnoremap <C-n> :enew
+nnoremap <C-n> :enew<CR>
 
 " Ctrl-Sで保存
-nnoremap <C-s> :w
+nnoremap <C-s> :w<CR>
 
 " Ctrl-wでバッファを閉じる
 nnoremap <C-w> :vs<CR>:bprev<CR><C-w>l:bd<CR>
@@ -138,8 +148,8 @@ nnoremap <A-k> ddkP
 nnoremap <A-h> dwh<S-p>
 nnoremap <A-l> dwp
 
-" Ctrl-zをサスペンドでなくアンドゥに変更
-nnoremap <C-z> :u
+" Ctrl-zをサスペンドでなくundoに変更
+nnoremap <C-z> u
 inoremap <C-z> <Esc>ui
 
 " Ctrl-aを全選択に変更
@@ -149,6 +159,43 @@ inoremap <C-a> <ESC>gg<S-v><S-G>
 " Ctrl-nで新規作成
 nnoremap <C-n> :enew<CR>
 
+" Escでnormal
+tnoremap <Esc> <C-\><C-n>
+
+" 画面再描画
+nnoremap <F5> <C-l>
+
+" エンコード指定開きなおし
+command! Sjis :e ++enc=sjis
+command! Utf8 :e ++enc=utf-8
+
+" タブ->空白
+command! Notab :%s/\t/  /g
+
+" diff垂直分割
+"command! -complete=file_in_path -nargs=1 Diff :vert diffs <args>
+
+"WinMerge
+command! -complete=file_in_path -nargs=+ Diff call Diff(<f-args>)
+function! Diff(...)
+  if a:0 == 1
+    call system('WinMergeU.exe '. expand('%') . ' ' . a:1 . '&')
+  elseif a:0 == 2
+    call system('WinMergeU.exe '. a:1 . ' ' . a:2 . '&')
+  endif
+endfunction
+
+" C-Bでファイル形式ごとにいろいろやる
+nnoremap <C-b> :Build<CR>
+command! Build call Build()
+function! Build()
+  if &filetype == 'python'
+    " expand('%')がたまにバグってパスがおかしくなる
+    " cmd.exeをコマンドラインで実行してstartで新しいウィンドウ開いてcmd呼び出すと処理後に勝手にウィンドウが閉じない
+    " もっといいやりかたを募集中
+    call system('cmd.exe /c start cmd /k python ' . expand('%') . ' &')
+  endif
+endfunction
 
 " プラグインを強制再ダウンロード
 "call dein#recache_runtimepath()
